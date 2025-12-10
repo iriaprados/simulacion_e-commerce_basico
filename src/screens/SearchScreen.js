@@ -1,4 +1,8 @@
+// ---- Pantalla de búsqueda de productos ----
+
 import React, { useState, useEffect } from 'react';
+
+// Importar componentes de React Native
 import {
   View,
   FlatList,
@@ -7,28 +11,37 @@ import {
   Text,
   TouchableOpacity,
   ScrollView,
+  Dimensions,
 } from 'react-native';
 import { getProducts, getCategories, searchProducts } from '../services/api';
 import ProductCard from '../components/ProductCard';
 import SearchBar from '../components/SearchBar';
 
-const SearchScreen = ({ navigation }) => {
-  const [products, setProducts] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+// Calcular número de columnas según el ancho de pantalla
+const { width } = Dimensions.get('window');
+const numColumns = width > 768 ? 4 : 2;
 
+// Componente principal de la pantalla de búsqueda
+const SearchScreen = ({ navigation }) => {
+  const [products, setProducts] = useState([]); // Lista completa de productos
+  const [filteredProducts, setFilteredProducts] = useState([]); // Productos filtrados
+  const [categories, setCategories] = useState([]); // Lista de categorías
+  const [searchQuery, setSearchQuery] = useState(''); // Consulta de búsqueda
+  const [selectedCategory, setSelectedCategory] = useState('all'); // Categoría seleccionada
+  const [loading, setLoading] = useState(true); // Estado de carga
+  const [error, setError] = useState(null); // Estado de error
+
+  // Cargar productos y categorías al montar el componente
   useEffect(() => {
     loadData();
   }, []);
 
+  // Filtrar productos cuando cambie la búsqueda o categoría
   useEffect(() => {
     filterProducts();
   }, [searchQuery, selectedCategory, products]);
 
+  // Función para cargar productos y categorías desde la API
   const loadData = async () => {
     try {
       setLoading(true);
@@ -41,9 +54,12 @@ const SearchScreen = ({ navigation }) => {
       console.log('Products loaded:', productsData.length);
       console.log('Categories loaded:', categoriesData);
       
+      // Actualizar estados
       setProducts(productsData);
       setCategories(['all', ...categoriesData]);
       setFilteredProducts(productsData);
+
+      // Control de errores 
     } catch (error) {
       console.error('Error loading data:', error);
       setError('Error loading products. Please try again.');
@@ -52,6 +68,7 @@ const SearchScreen = ({ navigation }) => {
     }
   };
 
+  // Función para filtrar productos según búsqueda y categoría
   const filterProducts = () => {
     let filtered = [...products];
 
@@ -68,14 +85,16 @@ const SearchScreen = ({ navigation }) => {
     }
 
     console.log('Filtered products:', filtered.length);
-    setFilteredProducts(filtered);
+    setFilteredProducts(filtered); // Actualizar productos filtrados
   };
 
+  // Función para limpiar filtros
   const clearFilters = () => {
     setSearchQuery('');
     setSelectedCategory('all');
   };
 
+  // Renderizado condicional según estado de carga o error
   if (loading) {
     return (
       <View style={styles.centerContainer}>
@@ -85,6 +104,7 @@ const SearchScreen = ({ navigation }) => {
     );
   }
 
+  // Manejo de errores
   if (error) {
     return (
       <View style={styles.centerContainer}>
@@ -96,7 +116,7 @@ const SearchScreen = ({ navigation }) => {
       </View>
     );
   }
-
+  
   return (
     <View style={styles.container}>
       <SearchBar
@@ -146,9 +166,11 @@ const SearchScreen = ({ navigation }) => {
       </View>
 
       <FlatList
+        style={styles.flatList}
         data={filteredProducts}
         keyExtractor={(item) => item.id.toString()}
-        numColumns={2}
+        numColumns={numColumns}
+        key={numColumns}
         renderItem={({ item }) => (
           <ProductCard
             product={item}
@@ -156,6 +178,7 @@ const SearchScreen = ({ navigation }) => {
           />
         )}
         contentContainerStyle={filteredProducts.length === 0 ? styles.emptyList : styles.list}
+        showsVerticalScrollIndicator={true}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyIcon}>🔍</Text>
@@ -183,6 +206,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
+  },
+  flatList: {
+    flex: 1,
   },
   centerContainer: {
     flex: 1,
@@ -273,15 +299,17 @@ const styles = StyleSheet.create({
   },
   list: {
     padding: 6,
+    paddingBottom: 20,
   },
   emptyList: {
-    flex: 1,
+    flexGrow: 1,
   },
   emptyContainer: {
     flex: 1,
     padding: 50,
     alignItems: 'center',
     justifyContent: 'center',
+    minHeight: 300,
   },
   emptyIcon: {
     fontSize: 64,

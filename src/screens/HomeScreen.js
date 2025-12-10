@@ -1,4 +1,5 @@
-// 
+// ---- Pantalla principal de productos ----
+
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -8,6 +9,7 @@ import {
   Text,
   TouchableOpacity,
   RefreshControl,
+  Dimensions,
 } from 'react-native';
 import { getProducts } from '../services/api';
 import ProductCard from '../components/ProductCard';
@@ -16,17 +18,39 @@ const HomeScreen = ({ navigation }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  
+  // Estado para número de columnas que se actualiza dinámicamente
+  const [numColumns, setNumColumns] = useState(() => {
+    const { width } = Dimensions.get('window');
+    return width >= 768 ? 3 : 2;
+  });
 
+  // Cargar productos al montar el componente y al cambiar el número de columnas
   useEffect(() => {
     loadProducts();
-  }, []);
+    
+    // Escuchar cambios en el tamaño de la pantalla
+    const subscription = Dimensions.addEventListener('change', ({ window }) => {
+      const newNumColumns = window.width >= 768 ? 3 : 2;
+      if (newNumColumns !== numColumns) { // Actualizar solo si ha cambiado
+        setNumColumns(newNumColumns);
+      }
+    });
 
+    // Limpiar el listener al desmontar
+    return () => subscription?.remove();
+  }, [numColumns]);
+
+  // Función para cargar productos desde la API
   const loadProducts = async () => {
+
     try {
-      setLoading(true);
-      const data = await getProducts();
-      console.log('Products loaded in Home:', data.length);
+      setLoading(true); // Iniciar carga
+      const data = await getProducts(); // Obtener productos desde la API
+      console.log('Products loaded in Home:', data.length); // Log para depuración
       setProducts(data);
+
+    // Manejo de errores
     } catch (error) {
       console.error('Error loading products:', error);
     } finally {
@@ -34,12 +58,14 @@ const HomeScreen = ({ navigation }) => {
     }
   };
 
+  // Función para refrescar la lista de productos
   const onRefresh = async () => {
     setRefreshing(true);
     await loadProducts();
     setRefreshing(false);
   };
 
+  // Mostrar indicador de carga mientras se obtienen los productos
   if (loading) {
     return (
       <View style={styles.centerContainer}>
@@ -74,9 +100,11 @@ const HomeScreen = ({ navigation }) => {
       </View>
 
       <FlatList
+        style={styles.flatList}
         data={products}
         keyExtractor={(item) => item.id.toString()}
-        numColumns={2}
+        numColumns={numColumns}
+        key={`flatlist-${numColumns}`}
         renderItem={({ item }) => (
           <ProductCard
             product={item}
@@ -84,7 +112,7 @@ const HomeScreen = ({ navigation }) => {
           />
         )}
         contentContainerStyle={styles.list}
-        columnWrapperStyle={styles.row}
+        showsVerticalScrollIndicator={true}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#e91e63']} />
         }
@@ -97,6 +125,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
+  },
+  flatList: {
+    flex: 1,
   },
   centerContainer: {
     flex: 1,
@@ -157,11 +188,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   list: {
-    paddingHorizontal: 5,
-    paddingTop: 5,
-  },
-  row: {
-    justifyContent: 'flex-start',
+    padding: 6,
+    paddingBottom: 20,
   },
 });
 

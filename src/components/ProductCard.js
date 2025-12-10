@@ -1,20 +1,35 @@
-
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import { useFavorites } from '../context/FavoritesContext';
 
-const { width } = Dimensions.get('window');
-// Calcular el ancho exacto para que quepan 2 tarjetas completas sin cortarse
-const cardWidth = (width - 20) / 2;
-
-// Componente para mostrar la tarjeta de un producto
 const ProductCard = ({ product, onPress }) => {
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const favorite = isFavorite(product.id);
+  
+  // Estado para el ancho de la tarjeta que se actualiza con el tamaño de pantalla
+  const [cardWidth, setCardWidth] = useState(() => {
+    const { width } = Dimensions.get('window');
+    if (width >= 768) {
+      return (width - 48) / 3; // 3 columnas con padding
+    } else {
+      return (width - 40) / 2; // 2 columnas con padding
+    }
+  });
 
-  const { isFavorite, toggleFavorite } = useFavorites(); // Usar el contexto de favoritos
-  const favorite = isFavorite(product.id); // Verificar si el producto es favorito
+  // Escuchar cambios en el tamaño de la pantalla
+  useEffect(() => {
+    const subscription = Dimensions.addEventListener('change', ({ window }) => {
+      if (window.width >= 768) {
+        setCardWidth((window.width - 48) / 3); // 3 columnas
+      } else {
+        setCardWidth((window.width - 40) / 2); // 2 columnas
+      }
+    });
 
-  return ( // Renderizar la tarjeta del producto
+    return () => subscription?.remove();
+  }, []);
 
+  return (
     <TouchableOpacity style={[styles.card, { width: cardWidth }]} onPress={onPress}>
       <Image source={{ uri: product.image }} style={styles.image} />
       
@@ -39,13 +54,12 @@ const ProductCard = ({ product, onPress }) => {
   );
 };
 
-// Estilos para el componente ProductCard
 const styles = StyleSheet.create({
   card: {
     backgroundColor: 'white',
     borderRadius: 12,
-    padding: 10,
-    margin: 5,
+    padding: 12,
+    margin: 6,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,

@@ -1,12 +1,18 @@
+// ------- Pantalla de favoritos -------
+
+// Dependencias
 import React from 'react';
 import { View, FlatList, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { useFavorites } from '../context/FavoritesContext';
 import ProductCard from '../components/ProductCard';
 
+// Componente principal de la pantalla de favoritos
 const FavoritesScreen = ({ navigation }) => {
-  const { favorites } = useFavorites();
+  const { favorites } = useFavorites(); // Obtener la lista de productos favoritos desde el contexto
 
+  // Mostrar mensaje si no hay favoritos
   if (favorites.length === 0) {
+    
     return (
       <View style={styles.emptyContainer}>
         <Text style={styles.emptyIcon}>❤️</Text>
@@ -42,6 +48,8 @@ const FavoritesScreen = ({ navigation }) => {
           />
         )}
         contentContainerStyle={styles.list}
+        columnWrapperStyle={styles.row}
+        style={styles.flatList}
       />
     </View>
   );
@@ -103,7 +111,15 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   list: {
-    padding: 6,
+    paddingHorizontal: 5,
+    paddingTop: 5,
+    paddingBottom: 20,
+  },
+  row: {
+    justifyContent: 'flex-start',
+  },
+  flatList: {
+    flex: 1,
   },
 });
 
