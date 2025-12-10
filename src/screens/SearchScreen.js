@@ -170,6 +170,8 @@ const SearchScreen = ({ navigation }) => {
         data={filteredProducts}
         keyExtractor={(item) => item.id.toString()}
         numColumns={numColumns}
+        nestedScrollEnabled={true}
+        removeClippedSubviews={false}
         key={numColumns}
         renderItem={({ item }) => (
           <ProductCard
@@ -297,12 +299,8 @@ const styles = StyleSheet.create({
     color: '#666',
     fontWeight: '500',
   },
-  list: {
-    padding: 6,
-    paddingBottom: 20,
-  },
   emptyList: {
-    flexGrow: 1,
+    paddingTop: 40,
   },
   emptyContainer: {
     flex: 1,
