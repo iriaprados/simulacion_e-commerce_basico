@@ -1,15 +1,20 @@
+
 import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import { useFavorites } from '../context/FavoritesContext';
 
 const { width } = Dimensions.get('window');
-const cardWidth = width > 768 ? (width - 60) / 4 : (width - 40) / 2;
+// Calcular el ancho exacto para que quepan 2 tarjetas completas sin cortarse
+const cardWidth = (width - 20) / 2;
 
+// Componente para mostrar la tarjeta de un producto
 const ProductCard = ({ product, onPress }) => {
-  const { isFavorite, toggleFavorite } = useFavorites();
-  const favorite = isFavorite(product.id);
 
-  return (
+  const { isFavorite, toggleFavorite } = useFavorites(); // Usar el contexto de favoritos
+  const favorite = isFavorite(product.id); // Verificar si el producto es favorito
+
+  return ( // Renderizar la tarjeta del producto
+
     <TouchableOpacity style={[styles.card, { width: cardWidth }]} onPress={onPress}>
       <Image source={{ uri: product.image }} style={styles.image} />
       
@@ -34,12 +39,13 @@ const ProductCard = ({ product, onPress }) => {
   );
 };
 
+// Estilos para el componente ProductCard
 const styles = StyleSheet.create({
   card: {
     backgroundColor: 'white',
     borderRadius: 12,
-    padding: 12,
-    margin: 6,
+    padding: 10,
+    margin: 5,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,

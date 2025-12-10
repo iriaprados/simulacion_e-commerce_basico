@@ -14,6 +14,7 @@ export const getProducts = async () => {
     
     // Adaptar la respuesta al formato esperado por nuestra app
     return data.products.map(product => ({
+
       id: product.id,
       title: product.title,
       price: product.price,
@@ -23,6 +24,7 @@ export const getProducts = async () => {
       rating: {
         rate: product.rating || 4.5,
         count: product.stock || 100
+        
       }
     }));
   } catch (error) {

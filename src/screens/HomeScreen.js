@@ -1,3 +1,4 @@
+// 
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -83,6 +84,7 @@ const HomeScreen = ({ navigation }) => {
           />
         )}
         contentContainerStyle={styles.list}
+        columnWrapperStyle={styles.row}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#e91e63']} />
         }
@@ -155,7 +157,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   list: {
-    padding: 6,
+    paddingHorizontal: 5,
+    paddingTop: 5,
+  },
+  row: {
+    justifyContent: 'flex-start',
   },
 });
 
